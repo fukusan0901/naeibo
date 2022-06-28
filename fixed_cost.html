@@ -1,0 +1,109 @@
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>naeibo</title>
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css" />
+</head>
+
+<body>
+  <div class="w-full max-w-xs pt-10 mx-auto">
+    <form class="w-full max-w-lg">
+      <div class="flex flex-wrap -mx-3 mb-2">
+        <div class="w-full px-3 mb-6">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-zip">
+            クレジットカードの明細日
+          </label>
+          <input id="day" type="date" name="day"
+            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
+        </div>
+
+        <div class="w-full px-3 mb-6">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+            ジャンルは？
+          </label>
+          <div class="relative">
+            <select
+              class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              id="grid-state" name="genre">
+              <option selected>電気</option>
+              <option>ガス</option>
+              <option>水道</option>
+              <option>インターネット</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full px-3 mb-6">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-zip">
+            金額は？
+          </label>
+          <input
+            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            id="grid-zip" type="text" name="pay" inputmode="numeric" pattern="\d*" placeholder="数字のみ単位なし 例) 2000" />
+        </div>
+      </div>
+
+      <div class="md:flex md:items-center text-right">
+        <button
+          class="shadow bg-yellow-500 hover:bg-yellow-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
+          type="submit">
+          登録する
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+  <script>
+    Date.prototype.toDateInputValue = function () {
+      const local = new Date(this);
+      local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+      return local.toJSON().slice(0, 10);
+    };
+
+    $(document).ready(() => $('#day').val(new Date().toDateInputValue()));
+    $(document).ready(() => initializeLiff('1657256035-ZOrymMEp'));
+
+    initializeLiff = (liffId) => {
+      liff
+        .init({ liffId })
+        .then(() => initializeApp())
+        .catch((err) => console.log('LIFF Initialization failed ', err));
+    };
+
+    sendText = (text) => {
+      liff
+        .sendMessages([{ type: 'text', text }])
+        .then(() => liff.closeWindow())
+        .catch((error) => window.alert('Failed to send message ' + error));
+    };
+
+    const params = new URL(document.location).searchParams;
+    const key = params.get('key');
+
+    $(() => {
+      $('form').submit(() => {
+        const day = $('input[name="day"]').val();
+        const genre = $('select[name="genre"]').val();
+        const pay = $('input[name="pay"]').val();
+        const msg = `固定費入力\n${day}\n${genre}\n${pay}`;
+        sendText(msg);
+        return false;
+      });
+    });
+  </script>
+</body>
+
+</html>
